@@ -6,7 +6,7 @@ const {
   STATUS_CREATED,
 } = require('../utils/constants');
 const { BadRequestError, badRequestMessage } = require('../errors/BadRequestError');
-const ConflictError = require('../errors/ConflictError');
+const { ConflictError, conflictErrorMessage } = require('../errors/ConflictError');
 const { NotFoundError, notFoundUser } = require('../errors/NotFoundError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -26,13 +26,13 @@ const createUser = (req, res, next) => {
       email,
       name,
     }))
-    .catch((e) => {
-      if (e.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже существует'));
-      } else if (e.name === 'ValidationError') {
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError(conflictErrorMessage));
+      } else if (err.name === 'ValidationError') {
         next(new BadRequestError(badRequestMessage));
       } else {
-        next(e);
+        next(err);
       }
     });
 };
@@ -59,11 +59,11 @@ const getMyInfo = (req, res, next) => {
     .then((user) => {
       res.send(user);
     })
-    .catch((e) => {
-      if (e.name === 'CastError') {
+    .catch((err) => {
+      if (err.name === 'CastError') {
         next(new BadRequestError(badRequestMessage));
       } else {
-        next(e);
+        next(err);
       }
     });
 };//
@@ -78,11 +78,11 @@ const updateMyInfo = (req, res, next) => {
     .then((user) => {
       res.status(STATUS_OK).send(user);
     })
-    .catch((e) => {
-      if (e.name === 'ValidationError') {
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
         next(new BadRequestError(badRequestMessage));
       } else {
-        next(e);
+        next(err);
       }
     });
 };

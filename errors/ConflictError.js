@@ -5,4 +5,6 @@ class ConflictError extends Error {
   }
 }
 
-module.exports = ConflictError;
+const conflictErrorMessage = 'Пользователь с таким email уже существует';
+
+module.exports = { ConflictError, conflictErrorMessage };

@@ -1,18 +1,17 @@
 const Movie = require('../models/movie');
 const { NotFoundError, notFoundMovie } = require('../errors/NotFoundError');
 const { BadRequestError, badRequestMessage } = require('../errors/BadRequestError');
-const ForbiddenError = require('../errors/ForbiddenError');
+const { ForbiddenError, forbiddenMovie } = require('../errors/ForbiddenError');
 
 const postMovie = (req, res, next) => {
-  const { country, director, duration, year, description, image, trailerLink, nameRU, nameEN, thumbnail, movieId } = req.body;
-  Movie.create({ country, director, duration, year, description, image, trailerLink, nameRU, nameEN, thumbnail, movieId, owner: req.user._id })
+    Movie.create({ ...req.body, owner: req.user._id })
     .then((movie) => res.send(movie))
-    .catch((e) => {
-      if (e.name === 'ValidationError') {
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
         console.log(req.body);
         next(new BadRequestError(badRequestMessage));
       } else {
-        next(e);
+        next(err);
       }
     });
 };
@@ -40,7 +39,7 @@ const deleteMovieById = (req, res, next) => {
           })
           .catch(next);
       } else {
-        throw new ForbiddenError('У Вас недостаточно прав для удаления фильма');
+        throw new ForbiddenError(forbiddenMovie);
       }
     })
     .catch((e) => {
